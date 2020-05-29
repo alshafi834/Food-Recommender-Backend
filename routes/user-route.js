@@ -19,6 +19,7 @@ router.post("/login", userController.login);
 
 router.use(checkAuth);
 
-router.get("/", userController.getUsers);
+//router.get("/", userController.getUsers);
+router.post("/", userController.getUserProfile);
 
 module.exports = router;

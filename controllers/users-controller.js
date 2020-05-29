@@ -27,7 +27,7 @@ const signUp = async (req, res, next) => {
     );
   }
 
-  const { username, email, password } = req.body;
+  const { username, email, password, age, gender, height, weight } = req.body;
 
   let isUserExist;
   try {
@@ -55,6 +55,10 @@ const signUp = async (req, res, next) => {
     username,
     email,
     password: hashedPassword,
+    age,
+    gender,
+    height,
+    weight,
   });
 
   try {
@@ -129,6 +133,23 @@ const login = async (req, res, next) => {
   res.json({ userId: isUserExist.id, email: isUserExist.email, token: token });
 };
 
+const getUserProfile = async (req, res, next) => {
+  const { userID } = req.body;
+  console.log(userID);
+  let userProfileInfo;
+
+  try {
+    userProfileInfo = await User.findOne({ _id: userID });
+  } catch (error) {
+    const err = new HttpError("Could not find the user with this email", 500);
+    return next(err);
+  }
+
+  console.log(userProfileInfo);
+  res.json(userProfileInfo);
+};
+
 exports.getUsers = getUsers;
 exports.signUp = signUp;
 exports.login = login;
+exports.getUserProfile = getUserProfile;
