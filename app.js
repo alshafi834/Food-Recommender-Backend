@@ -44,7 +44,7 @@ mongoose
     "mongodb+srv://alshafi834:158893SDnm_)@cluster0-asrk4.gcp.mongodb.net/foodrecommender?retryWrites=true&w=majority"
   )
   .then(() => {
-    app.listen(5000);
+    app.listen(process.env.PORT || 5000);
   })
   .catch((err) => {
     console.log(err);
