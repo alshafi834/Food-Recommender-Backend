@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const User = require("../models/users-model");
+const Food = require("../models/foods-model");
 
 //Get the userlist
 const getUsers = async (req, res, next) => {
@@ -149,7 +150,25 @@ const getUserProfile = async (req, res, next) => {
   res.json(userProfileInfo);
 };
 
+const findFood = async (req, res, next) => {
+  const { disease } = req.body;
+  const queryParam = {};
+  queryParam[disease] = "yes";
+  let suggestedFoods;
+
+  try {
+    suggestedFoods = await Food.find(queryParam);
+  } catch (error) {
+    const err = new HttpError("Could not find the user with this email", 500);
+    return next(err);
+  }
+
+  console.log(suggestedFoods);
+  res.json(suggestedFoods);
+};
+
 exports.getUsers = getUsers;
 exports.signUp = signUp;
 exports.login = login;
 exports.getUserProfile = getUserProfile;
+exports.findFood = findFood;

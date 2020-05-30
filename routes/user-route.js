@@ -19,6 +19,8 @@ router.post("/login", userController.login);
 
 router.use(checkAuth);
 
+router.post("/findfood", userController.findFood);
+
 //router.get("/", userController.getUsers);
 router.post("/", userController.getUserProfile);
 
