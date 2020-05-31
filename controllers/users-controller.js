@@ -151,11 +151,26 @@ const getUserProfile = async (req, res, next) => {
 };
 
 const findFood = async (req, res, next) => {
-  const { disease } = req.body;
+  const { disease, userID } = req.body;
   const queryParam = {};
   queryParam[disease] = "yes";
-  let suggestedFoods;
 
+  let userInfo;
+  try {
+    userInfo = await User.findOne({ _id: userID });
+  } catch (error) {
+    const err = new HttpError("Could not find the user with this email", 500);
+    return next(err);
+  }
+  let BMR;
+  if (userInfo.gender === "male") {
+    BMR = 10 * userInfo.weight + 6.25 * userInfo.height - 5 * userInfo.age + 5;
+  } else {
+    BMR =
+      10 * userInfo.weight + 6.25 * userInfo.height - 5 * userInfo.age - 161;
+  }
+
+  let suggestedFoods;
   try {
     suggestedFoods = await Food.find(queryParam);
   } catch (error) {
@@ -164,7 +179,7 @@ const findFood = async (req, res, next) => {
   }
 
   console.log(suggestedFoods);
-  res.json(suggestedFoods);
+  res.json({ bmr: BMR, suggestedFoods: suggestedFoods });
 };
 
 exports.getUsers = getUsers;
