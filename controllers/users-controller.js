@@ -152,8 +152,10 @@ const getUserProfile = async (req, res, next) => {
 
 const findFood = async (req, res, next) => {
   const { disease, userID } = req.body;
-  const queryParam = {};
-  queryParam[disease] = "yes";
+  const queryParam1 = {};
+  const queryParam2 = {};
+  queryParam1[disease] = "yes";
+  queryParam2[disease] = "no";
 
   let userInfo;
   try {
@@ -172,14 +174,26 @@ const findFood = async (req, res, next) => {
 
   let suggestedFoods;
   try {
-    suggestedFoods = await Food.find(queryParam);
+    suggestedFoods = await Food.find(queryParam1);
+  } catch (error) {
+    const err = new HttpError("Could not find the user with this email", 500);
+    return next(err);
+  }
+
+  let avoidedFoods;
+  try {
+    avoidedFoods = await Food.find(queryParam2);
   } catch (error) {
     const err = new HttpError("Could not find the user with this email", 500);
     return next(err);
   }
 
   console.log(suggestedFoods);
-  res.json({ bmr: BMR, suggestedFoods: suggestedFoods });
+  res.json({
+    bmr: BMR,
+    suggestedFoods: suggestedFoods,
+    avoidedFoods: avoidedFoods,
+  });
 };
 
 exports.getUsers = getUsers;
