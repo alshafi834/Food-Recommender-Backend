@@ -202,12 +202,35 @@ const findFood = async (req, res, next) => {
     try {
       avoidedFoods = await Food.find(sgsQuery);
       avoidedFoodList = arrayUnique([...avoidedFoodList, ...avoidedFoods]);
-      console.log(avoidedFoodList.length);
     } catch (error) {
       const err = new HttpError("Failed to fetch avoided food", 500);
       return next(err);
     }
   }
+  console.log("rcmnd1", rcmndFoodList.length);
+  console.log("avoid1", avoidedFoodList.length);
+  /* const arrayCrossCheck = (array1, array2) => {
+    for (let i = 0; i < array1.length; ++i) {
+      for (let j = 0; j < array2.length; ++j) {
+        if (array1[i].Food_Name === array2[j].Food_Name) {
+          array1.splice(i--, 1);
+        }
+      }
+    }
+    return array1;
+  }; */
+  //rcmndFoodList = arrayCrossCheck(rcmndFoodList, avoidedFoodList);
+  for (let i = 0; i < rcmndFoodList.length; ++i) {
+    for (let j = 0; j < avoidedFoodList.length; ++j) {
+      if (rcmndFoodList[i].Food_Name === avoidedFoodList[j].Food_Name) {
+        console.log("entering");
+        console.log(rcmndFoodList[i].Food_Name, avoidedFoodList[j].Food_Name);
+        rcmndFoodList.splice(i, 1);
+        break;
+      }
+    }
+  }
+  console.log("rcmnd2", rcmndFoodList.length);
 
   res.json({
     bmr: BMR,
