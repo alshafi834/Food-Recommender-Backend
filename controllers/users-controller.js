@@ -136,7 +136,6 @@ const login = async (req, res, next) => {
 
 const getUserProfile = async (req, res, next) => {
   const { userID } = req.body;
-  console.log(userID);
   let userProfileInfo;
 
   try {
@@ -146,16 +145,12 @@ const getUserProfile = async (req, res, next) => {
     return next(err);
   }
 
-  console.log(userProfileInfo);
+  //console.log(userProfileInfo);
   res.json(userProfileInfo);
 };
 
 const findFood = async (req, res, next) => {
   const { disease, userID } = req.body;
-  const queryParam1 = {};
-  const queryParam2 = {};
-  queryParam1[disease] = "yes";
-  queryParam2[disease] = "no";
 
   let userInfo;
   try {
@@ -172,27 +167,52 @@ const findFood = async (req, res, next) => {
       10 * userInfo.weight + 6.25 * userInfo.height - 5 * userInfo.age - 161;
   }
 
+  const arrayUnique = (array) => {
+    let a = array.concat();
+    for (let i = 0; i < a.length; ++i) {
+      for (let j = i + 1; j < a.length; ++j) {
+        if (a[i].Food_Name === a[j].Food_Name) a.splice(j--, 1);
+      }
+    }
+
+    return a;
+  };
+
+  let rcmndFoodList = [];
   let suggestedFoods;
-  try {
-    suggestedFoods = await Food.find(queryParam1);
-  } catch (error) {
-    const err = new HttpError("Could not find the user with this email", 500);
-    return next(err);
+  for (let i = 0; i < disease.length; i++) {
+    const sgsQuery = {};
+    sgsQuery[disease[i]] = "yes";
+
+    try {
+      suggestedFoods = await Food.find(sgsQuery);
+      rcmndFoodList = arrayUnique([...rcmndFoodList, ...suggestedFoods]);
+    } catch (error) {
+      const err = new HttpError("Failed to fetch suggested food", 500);
+      return next(err);
+    }
   }
 
+  let avoidedFoodList = [];
   let avoidedFoods;
-  try {
-    avoidedFoods = await Food.find(queryParam2);
-  } catch (error) {
-    const err = new HttpError("Could not find the user with this email", 500);
-    return next(err);
+  for (let i = 0; i < disease.length; i++) {
+    const sgsQuery = {};
+    sgsQuery[disease[i]] = "no";
+
+    try {
+      avoidedFoods = await Food.find(sgsQuery);
+      avoidedFoodList = arrayUnique([...avoidedFoodList, ...avoidedFoods]);
+      console.log(avoidedFoodList.length);
+    } catch (error) {
+      const err = new HttpError("Failed to fetch avoided food", 500);
+      return next(err);
+    }
   }
 
-  console.log(suggestedFoods);
   res.json({
     bmr: BMR,
-    suggestedFoods: suggestedFoods,
-    avoidedFoods: avoidedFoods,
+    suggestedFoods: rcmndFoodList,
+    avoidedFoods: avoidedFoodList,
   });
 };
 
