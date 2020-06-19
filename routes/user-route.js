@@ -20,6 +20,8 @@ router.post("/login", userController.login);
 router.use(checkAuth);
 
 router.post("/findfood", userController.findFood);
+router.post("/savediet", userController.savediet);
+router.post("/getdiettables", userController.getDietTables);
 
 //router.get("/", userController.getUsers);
 router.post("/", userController.getUserProfile);

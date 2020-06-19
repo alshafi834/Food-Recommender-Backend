@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 
 const User = require("../models/users-model");
 const Food = require("../models/foods-model");
+const Diet = require("../models/diet-model");
 
 //Get the userlist
 const getUsers = async (req, res, next) => {
@@ -149,6 +150,24 @@ const getUserProfile = async (req, res, next) => {
   res.json(userProfileInfo);
 };
 
+const getDietTables = async (req, res, next) => {
+  const { userID } = req.body;
+
+  let userDietInfo;
+
+  try {
+    userDietInfo = await Diet.find({ user: userID });
+  } catch (error) {
+    const err = new HttpError(
+      "Could not find any food table for this user",
+      500
+    );
+    return next(err);
+  }
+
+  res.status(201).json(userDietInfo);
+};
+
 const findFood = async (req, res, next) => {
   const { disease, userID } = req.body;
 
@@ -239,8 +258,30 @@ const findFood = async (req, res, next) => {
   });
 };
 
+const savediet = async (req, res, next) => {
+  const { userID, diettable, total_cal } = req.body;
+
+  const createdDiet = new Diet({
+    created_at: new Date(),
+    dietlist: diettable,
+    user: userID,
+    total_cal: total_cal,
+  });
+
+  try {
+    await createdDiet.save();
+  } catch (error) {
+    const err = new HttpError("Signing up failed, please try again", 500);
+    return next(err);
+  }
+
+  res.status(201).json(createdDiet);
+};
+
 exports.getUsers = getUsers;
 exports.signUp = signUp;
 exports.login = login;
 exports.getUserProfile = getUserProfile;
 exports.findFood = findFood;
+exports.savediet = savediet;
+exports.getDietTables = getDietTables;
